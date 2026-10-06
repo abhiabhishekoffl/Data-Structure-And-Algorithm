@@ -1,98 +1,60 @@
-\# 1. Two Sum
+# 15. 3Sum
 
+**Difficulty:** Medium
+**Link:** [LeetCode - 3Sum](https://leetcode.com/problems/3sum/description/)
+**Pattern:** Sorting + Two Pointers
 
+## Problem
 
-\*\*Difficulty:\*\* Easy
+Given an integer array `nums`, return all the triplets `[nums[i], nums[j], nums[k]]` such that:
 
-\*\*Link:\*\* \[LeetCode - Two Sum](https://leetcode.com/problems/two-sum/description/)
+- `i != j`, `i != k` and `j != k`
+- `nums[i] + nums[j] + nums[k] == 0`
 
-\*\*Pattern:\*\* Hash Map (Complement Lookup)
+The solution set must **not contain duplicate triplets**. The triplets and their order in the output can be in any order.
 
-
-
-\## Problem
-
-
-
-Ek integer array `nums` aur ek integer `target` diya hai. Aise \*\*do alag indices\*\* return karo jinke elements ka sum `target` ke barabar ho.
-
-
-
-\- Har input me \*\*exactly ek valid answer\*\* hota hai.
-
-\- Same element ko do baar use nahi kar sakte.
-
-\- Answer kisi bhi order me return kar sakte ho.
-
-
-
-\### Examples
-
-
+### Examples
 
 | Input | Output | Explanation |
-
 |-------|--------|-------------|
+| `nums = [-1,0,1,2,-1,-4]` | `[[-1,-1,2],[-1,0,1]]` | `-1 + -1 + 2 = 0` and `-1 + 0 + 1 = 0` |
+| `nums = [0,1,1]` | `[]` | The only possible sum is `2`, not `0` |
+| `nums = [0,0,0]` | `[[0,0,0]]` | `0 + 0 + 0 = 0` |
 
-| `nums = \[2,7,11,15], target = 9` | `\[0,1]` | `nums\[0] + nums\[1] = 2 + 7 = 9` |
+### Constraints
 
-| `nums = \[3,2,4], target = 6` | `\[1,2]` | `nums\[1] + nums\[2] = 2 + 4 = 6` |
+- `3 <= nums.length <= 3000`
+- `-10^5 <= nums[i] <= 10^5`
 
-| `nums = \[3,3], target = 6` | `\[0,1]` | `nums\[0] + nums\[1] = 3 + 3 = 6` |
+## Approach
 
+1. **Brute force:** Use three nested loops to check every combination of three numbers. It is simple, but it takes **O(n³)** time, which is too slow for `n = 3000`.
 
+2. **Optimized (Sorting + Two Pointers):**
+   - If `nums` has fewer than 3 elements, return `[]`.
+   - Sort `nums` in place with `nums.sort()` and create an empty set `result` to hold unique triplets.
+   - Loop with `for i in range(len(nums) - 2)` and fix `nums[i]` as the first number.
+   - For each `i`, set `left = i + 1` and `right = len(nums) - 1`, then run `while left < right`:
+     - Compute `total = nums[i] + nums[left] + nums[right]`.
+     - If `total == 0`, add the tuple `(nums[i], nums[left], nums[right])` to `result`, then move both pointers (`left += 1`, `right -= 1`).
+     - If `total < 0`, the sum is too small, so move `left += 1` to get a bigger number.
+     - If `total > 0`, the sum is too big, so move `right -= 1` to get a smaller number.
+   - At the end, convert each tuple in `result` back to a list and return them.
 
-\### Constraints
+3. **Key insight:** After sorting, moving `left` right can only increase the sum and moving `right` left can only decrease it. So once `nums[i]` is fixed, the remaining "find two numbers" problem is solved in a single O(n) pass instead of a nested loop. Using a **set of tuples** removes duplicate triplets automatically (tuples are hashable, lists are not).
 
+## Complexity
 
+- **Time: O(n²).**
+  - `nums.sort()` takes O(n log n).
+  - The outer loop runs about `n - 2` times. For each `i`, the `while left < right` loop moves `left` up or `right` down on every iteration, so it runs at most `n - i - 2` times, which is O(n).
+  - Together that is roughly `n + (n-1) + ... + 1`, i.e. O(n²). Adding a tuple to the set is O(1) on average.
+  - O(n²) dominates O(n log n), so the total is **O(n²)**.
+- **Space: O(k)**, where `k` is the number of unique triplets stored in the `result` set (and then copied into the returned list).
+  - In the worst case `k` itself can grow up to O(n²), since an array can contain that many distinct zero-sum triplets.
+  - `nums.sort()` also uses up to O(n) temporary space in Python (Timsort), and it modifies the input list in place.
+  - If the returned output is not counted, the set is the only extra structure that depends on the answer, which is why this solution is not O(1) space.
 
-\- `2 <= nums.length <= 10^4`
+## Mistakes & Learnings
 
-\- `-10^9 <= nums\[i] <= 10^9`
-
-\- `-10^9 <= target <= 10^9`
-
-\- Exactly one valid answer exists.
-
-
-
-\*\*Follow-up:\*\* Kya O(n²) se better algorithm de sakte ho?
-
-
-
-\## Approach
-
-
-
-1\. \*\*Brute force:\*\* Har pair `(i, j)` check karo ki `nums\[i] + nums\[j] == target` hai ya nahi. Ye simple hai, lekin do nested loops ki wajah se \*\*O(n²)\*\* time lagta hai, jo badi input pe slow hai.
-
-
-
-2\. \*\*Optimized (Hash Map):\*\* Array ko ek hi baar traverse karo. Har element `nums\[i]` ke liye uska \*\*complement\*\* `target - nums\[i]` nikalo.
-
-&#x20;  - Agar complement pehle se `seen\_elements` dictionary me hai, to answer mil gaya: `\[seen\_elements\[complement], i]`.
-
-&#x20;  - Warna current element ko `seen\_elements\[nums\[i]] = i` ke saath store kar do.
-
-
-
-3\. \*\*Key insight:\*\* "Kya mujhe koi pichla number mila jo mujhe target tak pahunchaye?" is sawal ka jawab \*\*O(1)\*\* me hash map se milta hai. Isliye har element ke liye pura array dobara scan nahi karna padta.
-
-
-
-\## Complexity
-
-
-
-\- \*\*Time:\*\* O(n), array ek hi baar traverse hota hai aur dictionary lookup/insert O(1) average hai.
-
-\- \*\*Space:\*\* O(n), worst case me saare elements dictionary me store ho jaate hain.
-
-
-
-\## Mistakes \& Learnings
-
-
-
-Detailed notes, dry run, edge cases aur revision checklist ke liye dekho: \[notes\_README.md](./notes\_README.md)
-
+For detailed notes, dry runs, edge cases, interview questions and a revision checklist, see [notes_README.md](./notes_README.md).
