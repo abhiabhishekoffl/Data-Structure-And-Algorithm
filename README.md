@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧩 Data Structures & Algorithms
+# Data Structures & Algorithms
 
 ### *Where every problem becomes a pattern, and every pattern becomes a skill.*
 
